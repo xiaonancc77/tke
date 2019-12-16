@@ -70,7 +70,7 @@ func (a *Authorizer) Authorize(attr authorizer.Attributes) (authorized authorize
 	if authorized == authorizer.DecisionAllow {
 		return authorizer.DecisionAllow, "", nil
 	}
-
+	
 	perms, _ := a.enforcer.GetImplicitPermissionsForUser(util.UserKey(tenantID, subject))
 
 	log.Debug("Authorize get user perms", log.Any("user perm", perms))
