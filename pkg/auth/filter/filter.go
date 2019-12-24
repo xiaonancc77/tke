@@ -20,6 +20,10 @@ package filter
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"unicode"
+
 	"github.com/go-openapi/inflect"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,13 +34,11 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/handlers/responsewriters"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/klog"
-	"net/http"
-	"strings"
+
 	"tkestack.io/tke/api/registry"
 	commonapiserverfilter "tkestack.io/tke/pkg/apiserver/filter"
 	"tkestack.io/tke/pkg/platform/apiserver/filter"
 	"tkestack.io/tke/pkg/util/log"
-	"unicode"
 )
 
 const (
