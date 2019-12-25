@@ -120,21 +120,17 @@ func (d *loalIdentitiedResourcesDeleter) Delete(localIdentityName string) error 
 		return nil
 	}
 
-	log.Info("1")
 	// Delete the localIdentity if it is already finalized.
-	log.Infof("localIdentity: %+v", localIdentity)
 	if d.deleteLocalIdentityWhenDone && finalized(localIdentity) {
 		return d.deleteLocalIdentity(localIdentity)
 	}
 
-	log.Info("2")
 	// there may still be content for us to remove
 	err = d.deleteAllContent(localIdentity)
 	if err != nil {
 		return err
 	}
 
-	log.Info("3")
 	// we have removed content, so mark it finalized by us
 	localIdentity, err = d.retryOnConflictError(localIdentity, d.finalizeLocalIdentity)
 	if err != nil {
@@ -252,7 +248,7 @@ func (d *loalIdentitiedResourcesDeleter) finalizeLocalIdentity(localIdentity *v1
 type deleteResourceFunc func(deleter *loalIdentitiedResourcesDeleter, localIdentity *v1.LocalIdentity) error
 
 var deleteResourceFuncs = []deleteResourceFunc{
-	deleteRelatedRules,
+	deleteRelatedRoles,
 	deleteApikeys,
 }
 
@@ -279,8 +275,8 @@ func (d *loalIdentitiedResourcesDeleter) deleteAllContent(localIdentity *v1.Loca
 	return nil
 }
 
-func deleteRelatedRules(deleter *loalIdentitiedResourcesDeleter, localIdentity *v1.LocalIdentity) error {
-	log.Debug("LocalIdentity controller - deleteRelatedRules", log.String("localIdentityName", localIdentity.ObjectMeta.Name))
+func deleteRelatedRoles(deleter *loalIdentitiedResourcesDeleter, localIdentity *v1.LocalIdentity) error {
+	log.Debug("LocalIdentity controller - deleteRelatedRoles", log.String("localIdentityName", localIdentity.ObjectMeta.Name))
 
 	subj := util.UserKey(localIdentity.Spec.TenantID, localIdentity.Spec.Username)
 	roles, err := deleter.enforcer.GetRolesForUser(subj)
@@ -289,7 +285,7 @@ func deleteRelatedRules(deleter *loalIdentitiedResourcesDeleter, localIdentity *
 	}
 
 	binding := v1.Binding{}
-	binding.Users = append(binding.Users, v1.Subject{Name: localIdentity.Spec.Username})
+	binding.Users = append(binding.Users, v1.Subject{ID: localIdentity.Name, Name: localIdentity.Spec.Username})
 
 	log.Info("Try removing policy for user", log.String("user", localIdentity.Spec.Username), log.Strings("policies", roles))
 	var errs []error
@@ -304,24 +300,19 @@ func deleteRelatedRules(deleter *loalIdentitiedResourcesDeleter, localIdentity *
 				Body(&binding).
 				Do().Into(pol)
 			if err != nil {
-				if errors.IsNotFound(err) {
-					continue
-				}
 				log.Error("Unbind policy for user failed", log.String("user", localIdentity.Spec.Username),
 					log.String("policy", role), log.Err(err))
 				errs = append(errs, err)
 			}
 		case strings.HasPrefix(role, util.GroupPrefix(localIdentity.Spec.TenantID)):
 			err = deleter.authClient.RESTClient().Post().
-				Resource("groups").
-				Name(role).
+				Resource("localgroups").
+				Name(strings.TrimPrefix(role, util.GroupPrefix(localIdentity.Spec.TenantID))).
 				SubResource("unbinding").
 				Body(&binding).
 				Do().Into(pol)
+			log.Info("errr", log.Err(err))
 			if err != nil {
-				if errors.IsNotFound(err) {
-					continue
-				}
 				log.Error("Unbind group for user failed", log.String("user", localIdentity.Spec.Username),
 					log.String("group", role), log.Err(err))
 				errs = append(errs, err)
@@ -334,9 +325,6 @@ func deleteRelatedRules(deleter *loalIdentitiedResourcesDeleter, localIdentity *
 				Body(&binding).
 				Do().Into(pol)
 			if err != nil {
-				if errors.IsNotFound(err) {
-					continue
-				}
 				log.Error("Unbind group for user failed", log.String("user", localIdentity.Spec.Username),
 					log.String("group", role), log.Err(err))
 				errs = append(errs, err)

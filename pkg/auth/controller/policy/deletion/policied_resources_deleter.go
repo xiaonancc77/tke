@@ -279,13 +279,13 @@ func deleteRelatedRules(deleter *policiedResourcesDeleter, policy *v1.Policy) er
 }
 
 func detachRelatedRoles(deleter *policiedResourcesDeleter, policy *v1.Policy) error {
-	log.Info("Policy controller - deleteRelatedRules", log.String("policyName", policy.ObjectMeta.Name))
+	log.Info("Policy controller - detachRelatedRoles", log.String("policyName", policy.ObjectMeta.Name))
 
 	roles, err := deleter.enforcer.GetRolesForUser(policy.ObjectMeta.Name)
 
 	var errs []error
 
-	unbinding := []string{policy.ObjectMeta.Name}
+	unbinding := v1.PolicyBinding{Policies: []string{policy.ObjectMeta.Name}}
 	pol := &v1.Role{}
 	for _, role := range roles {
 		switch {
