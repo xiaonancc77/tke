@@ -314,14 +314,6 @@ func (ConfigMapList) SwaggerDoc() map[string]string {
 	return map_ConfigMapList
 }
 
-var map_ContentSpec = map[string]string{
-	"": "ContentSpec indicates the backend type and attributes of the persistent log store.",
-}
-
-func (ContentSpec) SwaggerDoc() map[string]string {
-	return map_ContentSpec
-}
-
 var map_CronHPA = map[string]string{
 	"":     "CronHPA is a new kubernetes workload.",
 	"spec": "Spec defines the desired identities of CronHPA.",

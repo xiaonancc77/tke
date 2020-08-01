@@ -941,7 +941,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"tkestack.io/tke/api/platform/v1.ClusterStatus":                               schema_tke_api_platform_v1_ClusterStatus(ref),
 		"tkestack.io/tke/api/platform/v1.ConfigMap":                                   schema_tke_api_platform_v1_ConfigMap(ref),
 		"tkestack.io/tke/api/platform/v1.ConfigMapList":                               schema_tke_api_platform_v1_ConfigMapList(ref),
-		"tkestack.io/tke/api/platform/v1.ContentSpec":                                 schema_tke_api_platform_v1_ContentSpec(ref),
 		"tkestack.io/tke/api/platform/v1.CronHPA":                                     schema_tke_api_platform_v1_CronHPA(ref),
 		"tkestack.io/tke/api/platform/v1.CronHPAList":                                 schema_tke_api_platform_v1_CronHPAList(ref),
 		"tkestack.io/tke/api/platform/v1.CronHPAProxyOptions":                         schema_tke_api_platform_v1_CronHPAProxyOptions(ref),
@@ -45302,51 +45301,6 @@ func schema_tke_api_platform_v1_ConfigMapList(ref common.ReferenceCallback) comm
 	}
 }
 
-func schema_tke_api_platform_v1_ContentSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "ContentSpec indicates the backend type and attributes of the persistent log store.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"deployment": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/apps/v1.Deployment"),
-						},
-					},
-					"statefulSet": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/apps/v1.StatefulSet"),
-						},
-					},
-					"daemonSet": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/apps/v1.DaemonSet"),
-						},
-					},
-					"job": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/batch/v1.Job"),
-						},
-					},
-					"cronJob": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/batch/v1beta1.CronJob"),
-						},
-					},
-					"tapp": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("tkestack.io/tapp/pkg/apis/tappcontroller/v1.TApp"),
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"k8s.io/api/apps/v1.DaemonSet", "k8s.io/api/apps/v1.Deployment", "k8s.io/api/apps/v1.StatefulSet", "k8s.io/api/batch/v1.Job", "k8s.io/api/batch/v1beta1.CronJob", "tkestack.io/tapp/pkg/apis/tappcontroller/v1.TApp"},
-	}
-}
-
 func schema_tke_api_platform_v1_CronHPA(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -48208,15 +48162,14 @@ func schema_tke_api_platform_v1_TemplateSpec(ref common.ReferenceCallback) commo
 					},
 					"content": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("tkestack.io/tke/api/platform/v1.ContentSpec"),
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 				},
 				Required: []string{"username"},
 			},
 		},
-		Dependencies: []string{
-			"tkestack.io/tke/api/platform/v1.ContentSpec"},
 	}
 }
 

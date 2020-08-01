@@ -22,16 +22,12 @@ syntax = 'proto2';
 
 package tkestack.io.tke.api.platform.v1;
 
-import "k8s.io/api/apps/v1/generated.proto";
-import "k8s.io/api/batch/v1/generated.proto";
-import "k8s.io/api/batch/v1beta1/generated.proto";
 import "k8s.io/api/core/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/api/resource/generated.proto";
 import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
 import "k8s.io/apimachinery/pkg/util/intstr/generated.proto";
-import "tkestack.io/tapp/pkg/apis/tappcontroller/v1/generated.proto";
 
 // Package-wide variables from generator "generated".
 option go_package = "v1";
@@ -591,23 +587,6 @@ message ConfigMapList {
 
   // Items is the list of ConfigMaps.
   repeated ConfigMap items = 2;
-}
-
-// ContentSpec indicates the backend type and attributes of the persistent
-// log store.
-// +k8s:openapi-gen=true
-message ContentSpec {
-  optional k8s.io.api.apps.v1.Deployment deployment = 1;
-
-  optional k8s.io.api.apps.v1.StatefulSet statefulSet = 2;
-
-  optional k8s.io.api.apps.v1.DaemonSet daemonSet = 3;
-
-  optional k8s.io.api.batch.v1.Job job = 4;
-
-  optional k8s.io.api.batch.v1beta1.CronJob cronJob = 5;
-
-  optional tkestack.io.tapp.pkg.apis.tappcontroller.v1.TApp tapp = 6;
 }
 
 // CronHPA is a new kubernetes workload.
@@ -1465,7 +1444,7 @@ message TemplateSpec {
   // +optional
   map<string, string> labels = 4;
 
-  optional ContentSpec content = 5;
+  optional string content = 5;
 }
 
 // TemplateStatus is information about the current status of a

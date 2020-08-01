@@ -79,26 +79,6 @@ func (Strategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
 	if template.Name == "" && template.GenerateName == "" {
 		template.GenerateName = "tl-"
 	}
-
-	if template.Spec.Content.Deployment != nil {
-		template.Spec.Type = Deployment
-	}
-	if template.Spec.Content.StatefulSet != nil {
-		template.Spec.Type = StatefulSet
-	}
-	if template.Spec.Content.DaemonSet != nil {
-		template.Spec.Type = DaemonSet
-	}
-	if template.Spec.Content.Job != nil {
-		template.Spec.Type = Job
-	}
-	if template.Spec.Content.CronJob != nil {
-		template.Spec.Type = CronJob
-	}
-	if template.Spec.Content.Tapp != nil {
-		template.Spec.Type = TApp
-	}
-
 }
 
 // PrepareForUpdate is invoked on update before validation to normalize the

@@ -288,28 +288,6 @@ func (c *Controller) templateReinitialize(ctx context.Context, key string, cache
 }
 
 func (c *Controller) createTemplateIfNeeded(ctx context.Context, key string, cachedTemplate *cachedTemplate, template *v1.Template) error {
-	if template.Status.Phase == v1.AddonPhaseRunning &&
-		cachedTemplate != nil &&
-		cachedTemplate.state != nil &&
-		!reflect.DeepEqual(cachedTemplate.state.Spec.Content, template.Spec.Content) {
-		// delete from health check map
-		if c.health.Exist(key) {
-			c.health.Del(key)
-		}
-		if err := c.uninstallTemplateComponent(ctx, cachedTemplate.state); err != nil {
-			template = template.DeepCopy()
-			template.Status.Phase = v1.AddonPhaseFailed
-			template.Status.Reason = "Failed to delete the old content"
-			template.Status.RetryCount = 0
-			return c.persistUpdate(ctx, template)
-		}
-		template = template.DeepCopy()
-		template.Status.Phase = v1.AddonPhaseInitializing
-		template.Status.Reason = ""
-		template.Status.RetryCount = 0
-		return c.persistUpdate(ctx, template)
-	}
-
 	switch template.Status.Phase {
 	case v1.AddonPhaseInitializing:
 		log.Info("Template will be created", log.String("template", key))

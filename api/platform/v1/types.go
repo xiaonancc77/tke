@@ -19,14 +19,10 @@
 package v1
 
 import (
-	appv1 "k8s.io/api/apps/v1"
-	batchv1 "k8s.io/api/batch/v1"
-	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	tappv1 "tkestack.io/tapp/pkg/apis/tappcontroller/v1"
 )
 
 // +genclient
@@ -1353,7 +1349,7 @@ type TemplateSpec struct {
 	Username string `json:"username" protobuf:"bytes,3,opt,name=username"`
 	// +optional
 	Labels  map[string]string `json:"labels,omitempty" protobuf:"bytes,4,opt,name=labels"`
-	Content ContentSpec       `json:"content,omitempty" protobuf:"bytes,5,opt,name=content"`
+	Content string            `json:"content,omitempty" protobuf:"bytes,5,opt,name=content"`
 }
 
 // TemplateStatus is information about the current status of a
@@ -1383,18 +1379,6 @@ type TemplateList struct {
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// List of templates
 	Items []Template `json:"items" protobuf:"bytes,2,rep,name=items"`
-}
-
-// ContentSpec indicates the backend type and attributes of the persistent
-// log store.
-// +k8s:openapi-gen=true
-type ContentSpec struct {
-	Deployment  *appv1.Deployment     `json:"deployment,omitempty" protobuf:"bytes,1,opt,name=deployment"`
-	StatefulSet *appv1.StatefulSet    `json:"statefulSet,omitempty" protobuf:"bytes,2,opt,name=statefulSet"`
-	DaemonSet   *appv1.DaemonSet      `json:"daemonSet,omitempty" protobuf:"bytes,3,opt,name=daemonSet"`
-	Job         *batchv1.Job          `json:"job,omitempty" protobuf:"bytes,4,opt,name=job"`
-	CronJob     *batchv1beta1.CronJob `json:"cronJob,omitempty" protobuf:"bytes,5,opt,name=cronJob"`
-	Tapp        *tappv1.TApp          `json:"tapp,omitempty" protobuf:"bytes,6,opt,name=tapp"`
 }
 
 // +genclient

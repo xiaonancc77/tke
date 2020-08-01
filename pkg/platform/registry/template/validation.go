@@ -19,10 +19,8 @@
 package template
 
 import (
-	"fmt"
-	"reflect"
-
 	apiMachineryValidation "k8s.io/apimachinery/pkg/api/validation"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"tkestack.io/tke/api/platform"
 	utilvalidation "tkestack.io/tke/pkg/util/validation"
@@ -41,52 +39,20 @@ const (
 	TApp        = "TApp"
 )
 
+var templateTypes = sets.NewString(Deployment, StatefulSet, Deployment, DaemonSet, Job, CronJob, TApp)
+
 // Validate validates a given template.
 func ValidateTemplate(template *platform.Template) field.ErrorList {
 	allErrs := apiMachineryValidation.ValidateObjectMeta(&template.ObjectMeta, false, ValidateName, field.NewPath("metadata"))
 
-	v := reflect.ValueOf(template.Spec.Content)
-	count := v.NumField()
-	var contentCount int
-	for i := 0; i < count; i++ {
-		f := v.Field(i)
-		if !f.IsNil() {
-			contentCount++
-		}
+	if !templateTypes.Has(template.Spec.Type) {
+		allErrs = append(allErrs, field.Required(field.NewPath("spec", "type"), "must be one of these: Deployment, StatefulSet, DaemonSet, Job, CronJob, TApp"))
 	}
-	if contentCount != 1 {
-		allErrs = append(allErrs, field.Required(field.NewPath("spec", "content"), "must specify one content"))
+
+	if len(template.Spec.Content) <= 0 {
+		allErrs = append(allErrs, field.Required(field.NewPath("spec", "content"), "must not be none."))
 	}
-	if template.Spec.Content.Deployment != nil {
-		if template.Spec.Type != Deployment {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", Deployment), fmt.Sprintf("must specify spec.type is %s", Deployment)))
-		}
-	}
-	if template.Spec.Content.StatefulSet != nil {
-		if template.Spec.Type != StatefulSet {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", StatefulSet), fmt.Sprintf("must specify spec.type is %s", StatefulSet)))
-		}
-	}
-	if template.Spec.Content.DaemonSet != nil {
-		if template.Spec.Type != DaemonSet {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", DaemonSet), fmt.Sprintf("must specify spec.type is %s", DaemonSet)))
-		}
-	}
-	if template.Spec.Content.Job != nil {
-		if template.Spec.Type != Job {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", Job), fmt.Sprintf("must specify spec.type is %s", Job)))
-		}
-	}
-	if template.Spec.Content.CronJob != nil {
-		if template.Spec.Type != CronJob {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", CronJob), fmt.Sprintf("must specify spec.type is %s", CronJob)))
-		}
-	}
-	if template.Spec.Content.Tapp != nil {
-		if template.Spec.Type != TApp {
-			allErrs = append(allErrs, field.Required(field.NewPath("spec", "content", "spec", TApp), fmt.Sprintf("must specify spec.type is %s", TApp)))
-		}
-	}
+
 	return allErrs
 }
 

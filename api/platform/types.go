@@ -19,14 +19,10 @@
 package platform
 
 import (
-	appv1 "k8s.io/api/apps/v1"
-	batchv1 "k8s.io/api/batch/v1"
-	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	tappv1 "tkestack.io/tapp/pkg/apis/tappcontroller/v1"
 )
 
 // +genclient
@@ -1331,7 +1327,7 @@ type TemplateSpec struct {
 	Type     string
 	Username string
 	Labels   map[string]string
-	Content  ContentSpec
+	Content  string
 }
 
 // TemplateStatus is information about the current status of a
@@ -1361,17 +1357,6 @@ type TemplateList struct {
 	metav1.ListMeta
 	// List of clusters
 	Items []Template
-}
-
-// ContentSpec indicates the backend type and attributes of the persistent
-// log store.
-type ContentSpec struct {
-	Deployment  *appv1.Deployment
-	StatefulSet *appv1.StatefulSet
-	DaemonSet   *appv1.DaemonSet
-	Job         *batchv1.Job
-	CronJob     *batchv1beta1.CronJob
-	Tapp        *tappv1.TApp
 }
 
 // +genclient
